@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-
+﻿#nullable enable
 namespace KilnReimagined;
 
 [HarmonyPatch]
@@ -12,15 +9,15 @@ public static class Materials
         var renderers = asset.GetComponentsInChildren<Renderer>();
         if (renderers == null || renderers.Length == 0) return;
 
-        foreach (Renderer? renderer in renderers)
+        foreach (var renderer in renderers)
         {
             if (!renderer) continue;
-            foreach (Material? material in renderer.sharedMaterials)
+            foreach (var material in renderer.sharedMaterials)
             {
                 if (!material) continue;
                 var shader = material.shader;
                 if (!shader) return;
-                string name = shader.name;
+                var name = shader.name;
                 material.shader = Shader.Find(name);
             }
         }

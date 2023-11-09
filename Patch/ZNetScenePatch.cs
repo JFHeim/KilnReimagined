@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
-using UnityEngine;
-using static KilnReimagined.Plugin;
-
-namespace KilnReimagined;
+﻿namespace KilnReimagined;
 
 [HarmonyPatch]
 public class ZNetScenePatch
 {
-    [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake)), HarmonyPostfix, HarmonyWrapSafe]
+    [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))] [HarmonyPostfix] [HarmonyWrapSafe]
     public static void Patch(ZNetScene __instance)
     {
         var piece = kiln.Prefab.GetComponent<Piece>();
