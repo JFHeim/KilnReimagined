@@ -26,6 +26,16 @@ public class ZNetScenePatch
         Utils.FindChild(kiln.Prefab.transform, "SmokeSpawner").gameObject.GetComponent<SmokeSpawner>().m_smokePrefab =
             Utils.FindChild(orig.transform, "SmokeSpawner").gameObject.GetComponent<SmokeSpawner>().m_smokePrefab;
 
-        Materials.FixRenderers(kiln.Prefab);
+        FixParticle("smoke (1)");
+        FixParticle("flames");
+
+        void FixParticle(string name)
+        {
+            Utils.FindChild(kiln.Prefab.transform, name).gameObject.GetComponent<ParticleSystemRenderer>().material =
+                Utils.FindChild(orig.transform, name).gameObject.GetComponent<ParticleSystemRenderer>().material;
+        }
+
+        if (removeOriginalFromHammerConfig.Value)
+            ZNetScene.instance.GetItem("Hammer").m_itemData.m_shared.m_buildPieces.m_pieces.Remove(orig);
     }
 }
