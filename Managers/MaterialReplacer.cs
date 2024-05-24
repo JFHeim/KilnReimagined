@@ -1,4 +1,8 @@
-﻿#nullable enable
+﻿using HarmonyLib;
+using UnityEngine.Rendering;
+
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace KilnReimagined.PieceManager;
 
@@ -8,7 +12,7 @@ public static class MaterialReplacer
     private static readonly Dictionary<GameObject, bool> ObjectToSwap;
     private static readonly Dictionary<string, Material> OriginalMaterials;
     private static readonly Dictionary<GameObject, ShaderType> ObjectsForShaderReplace;
-    private static readonly HashSet<Shader> CachedShaders = new();
+    private static readonly HashSet<Shader> CachedShaders = [];
     private static bool hasRun = false;
 
     static MaterialReplacer()
@@ -59,8 +63,7 @@ public static class MaterialReplacer
     [HarmonyPriority(Priority.VeryHigh)]
     private static void ReplaceAllMaterialsWithOriginal()
     {
-        if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null
-            || hasRun) return;
+        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null || hasRun) return;
 
         if (OriginalMaterials.Count == 0) GetAllMaterials();
 

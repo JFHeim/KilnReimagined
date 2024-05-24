@@ -4,6 +4,7 @@ global using System.Linq;
 global using HarmonyLib;
 global using JetBrains.Annotations;
 global using JFUtils;
+global using TMPro;
 global using UnityEngine;
 global using static JFUtils.ModBase;
 global using static KilnReimagined.Plugin;

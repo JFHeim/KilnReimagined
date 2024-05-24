@@ -9,7 +9,7 @@ internal class Plugin : BaseUnityPlugin
 {
     internal const string ModName = "Frogger.KilnReimagined",
         ModAuthor = "Frogger",
-        ModVersion = "1.3.4",
+        ModVersion = "1.3.5",
         ModGUID = $"com.{ModAuthor}.{ModName}";
 
     internal static BuildPiece kiln;
