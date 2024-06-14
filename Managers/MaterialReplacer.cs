@@ -1,9 +1,6 @@
-﻿using HarmonyLib;
-using UnityEngine.Rendering;
+﻿#nullable enable
+// ReSharper disable all
 
-#nullable enable
-
-// ReSharper disable once CheckNamespace
 namespace KilnReimagined.PieceManager;
 
 [PublicAPI]
@@ -12,15 +9,15 @@ public static class MaterialReplacer
     private static readonly Dictionary<GameObject, bool> ObjectToSwap;
     private static readonly Dictionary<string, Material> OriginalMaterials;
     private static readonly Dictionary<GameObject, ShaderType> ObjectsForShaderReplace;
-    private static readonly HashSet<Shader> CachedShaders = [];
-    private static bool hasRun = false;
+    private static readonly HashSet<Shader> CachedShaders = new();
+    private static bool _hasRun = false;
 
     static MaterialReplacer()
     {
         OriginalMaterials = new Dictionary<string, Material>();
         ObjectToSwap = new Dictionary<GameObject, bool>();
         ObjectsForShaderReplace = new Dictionary<GameObject, ShaderType>();
-        Harmony harmony = new Harmony("org.bepinex.helpers.PieceManager");
+        var harmony = new Harmony("org.bepinex.helpers.PieceManager");
         harmony.Patch(AccessTools.DeclaredMethod(typeof(ZoneSystem), nameof(ZoneSystem.Start)),
             postfix: new HarmonyMethod(typeof(MaterialReplacer), nameof(ReplaceAllMaterialsWithOriginal)));
     }
@@ -38,32 +35,26 @@ public static class MaterialReplacer
 
     public static void RegisterGameObjectForShaderSwap(GameObject go, ShaderType type)
     {
-        if (!ObjectsForShaderReplace.ContainsKey(go))
-        {
-            ObjectsForShaderReplace.Add(go, type);
-        }
+        if (ObjectsForShaderReplace.ContainsKey(go)) return;
+        ObjectsForShaderReplace.Add(go, type);
     }
 
     public static void RegisterGameObjectForMatSwap(GameObject go, bool isJotunnMock = false)
     {
-        if (!ObjectToSwap.ContainsKey(go))
-        {
-            ObjectToSwap.Add(go, isJotunnMock);
-        }
+        if (ObjectToSwap.ContainsKey(go)) return;
+        ObjectToSwap.Add(go, isJotunnMock);
     }
 
     private static void GetAllMaterials()
     {
         foreach (var material in Resources.FindObjectsOfTypeAll<Material>())
-        {
             OriginalMaterials[material.name] = material;
-        }
     }
 
     [HarmonyPriority(Priority.VeryHigh)]
     private static void ReplaceAllMaterialsWithOriginal()
     {
-        if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null || hasRun) return;
+        if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null || _hasRun) return;
 
         if (OriginalMaterials.Count == 0) GetAllMaterials();
 
@@ -91,11 +82,10 @@ public static class MaterialReplacer
             }
 
             if (bundleShaders == null) continue;
-            foreach (var shader in bundleShaders)
-            {
-                CachedShaders.Add(shader);
-            }
+            foreach (var shader in bundleShaders) CachedShaders.Add(shader);
         }
+
+        Debug($"CachedShaders = {CachedShaders.GetString()}");
 
         foreach (var kvp in ObjectsForShaderReplace)
         {
@@ -104,7 +94,7 @@ public static class MaterialReplacer
             ProcessGameObjectShaders(go, shaderType);
         }
 
-        hasRun = true;
+        _hasRun = true;
     }
 
     private static void ProcessGameObjectMaterials(GameObject go, bool isJotunnMock)
@@ -120,35 +110,28 @@ public static class MaterialReplacer
 
     private static Material ReplaceMaterial(Material originalMaterial, bool isJotunnMock)
     {
-        string replacementPrefix = isJotunnMock ? "JVLmock_" : "_REPLACE_";
+        var replacementPrefix = isJotunnMock ? "JVLmock_" : "_REPLACE_";
         if (!originalMaterial.name.StartsWith(replacementPrefix, StringComparison.Ordinal))
         {
             return originalMaterial;
         }
 
-        string cleanName = originalMaterial.name.Replace(" (Instance)", "").Replace(replacementPrefix, "");
+        var cleanName = originalMaterial.name.Replace(" (Instance)", "").Replace(replacementPrefix, "");
         if (OriginalMaterials.TryGetValue(cleanName, out var replacementMaterial))
         {
             return replacementMaterial;
         }
 
-        DebugWarning($"No suitable material found to replace: {cleanName}");
+        Debug.LogWarning($"No suitable material found to replace: {cleanName}");
         return originalMaterial;
     }
 
     private static void ProcessGameObjectShaders(GameObject go, ShaderType shaderType)
     {
         var renderers = go.GetComponentsInChildren<Renderer>(true);
-        foreach (var renderer in renderers)
-        {
-            foreach (var material in renderer.sharedMaterials)
-            {
-                if (material != null)
-                {
-                    material.shader = GetShaderForType(material.shader, shaderType, material.shader.name);
-                }
-            }
-        }
+        foreach (var renderer in renderers.Where(x => x.name != "_NOTREPLACE_").ToList())
+        foreach (var material in renderer.sharedMaterials.Where(x => x != null).ToList())
+            material.shader = GetShaderForType(material.shader, shaderType, material.shader.name) ?? material.shader;
     }
 
     private static Shader GetShaderForType(Shader orig, ShaderType shaderType, string originalShaderName)

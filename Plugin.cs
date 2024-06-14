@@ -9,17 +9,17 @@ internal class Plugin : BaseUnityPlugin
 {
     internal const string ModName = "Frogger.KilnReimagined",
         ModAuthor = "Frogger",
-        ModVersion = "1.3.5",
+        ModVersion = "1.3.7",
         ModGUID = $"com.{ModAuthor}.{ModName}";
+ 
+    public static BuildPiece Kiln;
 
-    internal static BuildPiece kiln;
-
-    public static ConfigEntry<bool> removeOriginalFromHammerConfig;
+    public static ConfigEntry<bool> RemoveOriginalFromHammerConfig;
 
     private void Awake()
     {
         CreateMod(this, ModName, ModAuthor, ModVersion, ModGUID);
-        removeOriginalFromHammerConfig = config("General", "Remove Original From Hammer", true,
+        RemoveOriginalFromHammerConfig = config("General", "Remove Original From Hammer", true,
             "<color=red>Requires full game restart</color> Remove the original Kiln from the hammer?");
 
         OnConfigurationChanged += () =>
@@ -29,14 +29,17 @@ internal class Plugin : BaseUnityPlugin
 
             var pieceTable = ZNetScene.instance.GetItem("Hammer").m_itemData.m_shared.m_buildPieces;
             var orig = ZNetScene.instance.GetPrefab("charcoal_kiln");
-            if (removeOriginalFromHammerConfig.Value) pieceTable.m_pieces.Remove(orig);
+            if (RemoveOriginalFromHammerConfig.Value) pieceTable.m_pieces.Remove(orig);
             else if (!pieceTable.m_pieces.Contains(orig)) pieceTable.m_pieces.Add(orig);
         };
 
-        kiln = new BuildPiece("kiln", "JF_KilnReimagined");
-        kiln.Crafting.Set(CraftingTable.Workbench);
-        kiln.Category.Set(BuildPieceCategory.Crafting);
-        kiln.RequiredItems.Add("Stone", 20, true);
-        kiln.RequiredItems.Add("SurtlingCore", 20, true);
+        LoadAssetBundle("kiln");
+ 
+        Kiln = new BuildPiece(bundle, "JF_KilnReimagined");
+        Kiln.Crafting.Set(CraftingTable.Workbench);
+        Kiln.Category.Set(BuildPieceCategory.Crafting);
+        Kiln.RequiredItems.Add("Stone", 20, true);
+        Kiln.RequiredItems.Add("SurtlingCore", 20, true);
+        MaterialReplacer.RegisterGameObjectForShaderSwap(Kiln.Prefab, MaterialReplacer.ShaderType.UseUnityShader);
     }
 }
