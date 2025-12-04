@@ -1,0 +1,9 @@
+{
+    "name": "KilnReimagined",
+    "version_number": "1.4.0",
+    "website_url": "https://github.com/JFHeim/KilnReimagined",
+    "description": "New carbon-burning furnace to replace the old one",
+    "dependencies": [
+        "denikson-BepInExPack_Valheim-5.4.2333"
+    ]
+}

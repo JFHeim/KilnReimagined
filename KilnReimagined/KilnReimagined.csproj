@@ -1,0 +1,101 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <AssemblyVersion>2.7.0</AssemblyVersion>
+        <FileVersion>2.7.0</FileVersion>
+
+        <GameDir>/home/vych/.local/share/Steam/steamapps/common/Valheim/</GameDir>
+        <ManagedAssemblesDir>$(GameDir)valheim_Data/Managed/</ManagedAssemblesDir>
+        <BepInExDir>$(GameDir)BepInEx/</BepInExDir>
+        <BepInExLibsDir>$(GameDir)BepInEx/core/</BepInExLibsDir>
+
+        <Company>JustAFrogger</Company>
+        <Product>KilnReimagined</Product>
+        <NeutralLanguage>ru</NeutralLanguage>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <DebugType>embedded</DebugType>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <DebugType>none</DebugType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.44.1">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="JFUtils">
+            <HintPath>Lib\JFUtils.dll</HintPath>
+        </Reference>
+
+        <Reference Include="0Harmony">
+            <HintPath>$(BepInExLibsDir)0Harmony.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx">
+            <HintPath>$(BepInExLibsDir)BepInEx.dll</HintPath>
+        </Reference>
+
+        <Reference Include="assembly_valheim" Publicize="true">
+            <HintPath>$(ManagedAssemblesDir)assembly_valheim.dll</HintPath>
+        </Reference>
+        <Reference Include="assembly_utils" Publicize="true">
+            <HintPath>$(ManagedAssemblesDir)assembly_utils.dll</HintPath>
+        </Reference>
+        <Reference Include="assembly_guiutils" Publicize="true">
+            <HintPath>$(ManagedAssemblesDir)assembly_guiutils.dll</HintPath>
+        </Reference>
+
+        <Reference Include="UnityEngine">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="Unity.TextMeshPro">
+            <HintPath>$(ManagedAssemblesDir)Unity.TextMeshPro.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.UI.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.UIModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.UIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.TextRenderingModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.TextRenderingModule.dll</HintPath>
+        </Reference>      
+        <Reference Include="UnityEngine.AudioModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.AudioModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.ParticleSystemModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.ParticleSystemModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+            <HintPath>$(ManagedAssemblesDir)UnityEngine.AssetBundleModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="kiln" />
+      <EmbeddedResource Include="kiln" />
+    </ItemGroup>
+
+    <Target Name="CopyDLL" AfterTargets="ILRepack">
+        <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(GameDir)BepInEx\plugins\"/>
+        <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(SolutionDir)Thunderstore\"/>
+    </Target>
+</Project>

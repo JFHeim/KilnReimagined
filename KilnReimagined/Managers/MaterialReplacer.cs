@@ -85,7 +85,7 @@ public static class MaterialReplacer
             foreach (var shader in bundleShaders) CachedShaders.Add(shader);
         }
 
-        Debug($"CachedShaders = {CachedShaders.GetString()}");
+        LogDebug($"CachedShaders = {CachedShaders.GetString()}");
 
         foreach (var kvp in ObjectsForShaderReplace)
         {
@@ -131,25 +131,26 @@ public static class MaterialReplacer
         var renderers = go.GetComponentsInChildren<Renderer>(true);
         foreach (var renderer in renderers.Where(x => x.name != "_NOTREPLACE_").ToList())
         foreach (var material in renderer.sharedMaterials.Where(x => x != null).ToList())
+        {
+            LogInfo($"[MaterialReplacer::ProcessGameObjectShaders] " +
+                $"renderer={renderer.name}; material={material.name}; shader={material.shader.name}; shaderType={shaderType.ToString()}");
             material.shader = GetShaderForType(material.shader, shaderType, material.shader.name) ?? material.shader;
+        }
     }
 
     private static Shader GetShaderForType(Shader orig, ShaderType shaderType, string originalShaderName)
     {
         switch (shaderType)
         {
-            case ShaderType.PieceShader: return FindShaderWithName(orig, "Custom/Piece");
-            case ShaderType.VegetationShader: return FindShaderWithName(orig, "Custom/Vegetation");
-            case ShaderType.RockShader: return FindShaderWithName(orig, "Custom/StaticRock");
-            case ShaderType.RugShader: return FindShaderWithName(orig, "Custom/Rug");
-            case ShaderType.GrassShader: return FindShaderWithName(orig, "Custom/Grass");
-            case ShaderType.CustomCreature: return FindShaderWithName(orig, "Custom/Creature");
+            case ShaderType.PieceShader:        return FindShaderWithName(orig, "Custom/Piece");
+            case ShaderType.VegetationShader:   return FindShaderWithName(orig, "Custom/Vegetation");
+            case ShaderType.RockShader:         return FindShaderWithName(orig, "Custom/StaticRock");
+            case ShaderType.RugShader:          return FindShaderWithName(orig, "Custom/Rug");
+            case ShaderType.GrassShader:        return FindShaderWithName(orig, "Custom/Grass");
+            case ShaderType.CustomCreature:     return FindShaderWithName(orig, "Custom/Creature");
+            default:                            return FindShaderWithName(orig, "Standard");
             case ShaderType.UseUnityShader:
-                return FindShaderWithName(orig,
-                    FindShaderWithName(orig, originalShaderName) != null
-                        ? originalShaderName
-                        : "ToonDeferredShading2017");
-            default: return FindShaderWithName(orig, "Standard");
+                return FindShaderWithName(orig, FindShaderWithName(orig, originalShaderName) != null ? originalShaderName : "ToonDeferredShading2017");
         }
     }
 
@@ -157,10 +158,8 @@ public static class MaterialReplacer
     {
         foreach (var shader in CachedShaders)
         {
-            if (shader.name == name)
-            {
-                return shader;
-            }
+            if (shader.name != name) continue;
+            return shader;
         }
 
 
